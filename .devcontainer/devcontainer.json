@@ -17,8 +17,7 @@
 	// 3. Use 'runArgs' to pass arguments to the container. 
 	// run the container with all GPUs
 	"runArgs": [
-		"--gpus",
-		"all",
+		//"--gpus", "all",
 		//"--userns=keep-id",
 		//"--security-opt=label=disable"
 	],
