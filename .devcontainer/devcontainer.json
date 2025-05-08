@@ -1,11 +1,11 @@
 {
 	// For quick reference: https://containers.dev/implementors/json_reference/
 	"name": "Miniforge3",
-	"image": "quay.io/condaforge/miniforge3:latest", // 25.3.0-1
-	//"build": {
-	//	"context": "..",
-	//	"dockerfile": "Dockerfile"
-	//},
+	//"image": "quay.io/condaforge/miniforge3:latest", // 25.3.0-1
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	},
 
 	// 1. Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": []
@@ -19,8 +19,8 @@
 	"runArgs": [
 		"--gpus",
 		"all",
-		"--userns=keep-id",
-		"--security-opt=label=disable"
+		//"--userns=keep-id",
+		//"--security-opt=label=disable"
 	],
 
 	// 4. Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
@@ -49,7 +49,7 @@
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
-				"python.defaultInterpreterPath": "/opt/conda/bin/python"
+				"python.defaultInterpreterPath": "/opt/conda/bin/python",
 			},
 			// installs useful extensions
 			"extensions": [
@@ -72,7 +72,7 @@
 	
 	// 6. Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	//"remoteUser": "vscode",
-	"remoteUser": "root", // in a rootless container
+	"remoteUser": "root" // in a rootless container
 
 	// the following commands are related to container lifecylce. More info: https://containers.dev/implementors/json_reference/#lifecycle-scripts
 	
@@ -81,13 +81,13 @@
 
 	// 8. Use 'onCreateCommand' to run commands INSIDE THE CONTAINER after it started for the first time.
 	//"onCreateCommand": "", // useradd -m -s /bin/bash vscode",
-	"onCreateCommand": "apt-get update && export ENV TZ=US DEBIAN_FRONTEND=noninteractive && apt-get install -y libgl1 libxrender1",
+	//"onCreateCommand": "apt-get update && export ENV TZ=US DEBIAN_FRONTEND=noninteractive && apt-get install -y libgl1 libxrender1",
 	
 	// 9. Use 'updateContentCommand' to run commands if the root filetree have any changes, during container creation.
 	// "updateContentCommand": "",
 
 	// 10. Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user build123d ocp_vscode ipykernel -r requirements.txt" //-r src/workboard/prompts/requirements.txt "
+	//"postCreateCommand": "pip3 install --user build123d ocp_vscode ipykernel -r requirements.txt" //-r src/workboard/prompts/requirements.txt "
 
 	// 11. Use 'postStartCommand' to run a command each time the container starts successfully.
 	// "postStartCommand": "",
