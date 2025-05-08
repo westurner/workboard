@@ -1,0 +1,5 @@
+build123d
+ocp_vscode
+
+ipykernel
+ruff
