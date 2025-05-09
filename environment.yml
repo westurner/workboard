@@ -1,0 +1,14 @@
+
+# environment.yml for CAD with Python, build123d, ocp_vscode
+
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - build123d
+  #- cadquery
+  - ipykernel
+  - ruff
+  - pip
+  - pip:
+    - ocp_vscode

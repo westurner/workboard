@@ -1,5 +1,6 @@
 build123d
 ocp_vscode
+#jupyter-cadquery
 
 ipykernel
 ruff
