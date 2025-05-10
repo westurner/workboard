@@ -22,6 +22,8 @@ A simple laptop stand model with inset circles for detachable magnetic risers.
 """
 # SPDX-License-Identifier:
 
+import os
+
 # Import necessary modules from build123d
 from build123d import (
     Axis,
@@ -238,15 +240,23 @@ if do_export_files:
         # Export the model as an STL file
         export_gltf(base, f"{name_prefix}_{name}.gltf")
 
+def running_in_vscode():
+    return "VSCODE_IPC_HOOK_CLI" in os.environ
 
-# ocp_vscode is used to visualize the model in VSCode
-# Install the "OCP CAD Viewer" extension in VSCode to view the model
-from ocp_vscode import show
+if running_in_vscode():
+    # ocp_vscode is used to visualize the model in VSCode
+    # Install the "OCP CAD Viewer" extension in VSCode to view the model
+    from ocp_vscode import show
 
-# Ensure ocp_vscode is installed to visualize the model in VSCode
-# Install ocp_vscode via pip if not already installed:
-# pip install ocp-vscode
-# Show the model in the OCP VSCode viewer
-show(data["parts"]["base3d"], "Workboard 3D Model")
-# This code creates a simple laptop stand model with inset circles for detachable magnetic risers.
-# The model is exported in STEP and STL formats for further use or 3D printing.
+    # Ensure ocp_vscode is installed to visualize the model in VSCode
+    # Install ocp_vscode via pip if not already installed:
+    # pip install ocp-vscode
+    # Show the model in the OCP VSCode viewer
+    try:
+        show(data["parts"]["base3d"], "Workboard 3D Model")
+    except RuntimeError as exc:
+        print(exc)
+        print("""In vscode: Ctrl-Shift-P "OCP CAD Viewer: Open viewer (Ctrl+K V)""")
+        raise
+    # This code creates a simple laptop stand model with inset circles for detachable magnetic risers.
+    # The model is exported in STEP and STL formats for further use or 3D printing.
