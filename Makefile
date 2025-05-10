@@ -33,3 +33,10 @@ check:
 	@echo "# Check whether podman-rootless is on \$$PATH:"
 	@echo "PATH=${PATH}"
 	test -p "podman-rootless"
+
+
+PYTHON=python
+#PYTHON=/opt/conda/bin/python
+run:
+	$(PYTHON) workboard/workboard01.py
+
