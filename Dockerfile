@@ -29,14 +29,12 @@ RUN --mount=type=cache,id=aptcache0,target=/var/cache/apt,sharing=shared \
 
 
 COPY requirements.txt /requirements.txt
-
 RUN --mount=type=cache,id=pipcache0,target=/home/${NB_USER}/.cache/pip,uid=${NB_UID},sharing=shared \
     --mount=type=cache,id=uvcache0,target=/home/${NB_USER}/.cache/uv,uid=${NB_UID},sharing=shared \
     chown -R ${NB_USER} /home/${NB_USER}/.cache
 
 USER ${NB_USER}
-ENV REQUIREMENTS_TXT=requirements.txt
-ENV ENVIRONMENT_YML=environment.yml
+ENV REQUIREMENTS_TXT=/requirements.txt
 RUN --mount=type=cache,id=pipcache0,target=/home/${NB_USER}/.cache/pip,uid=${NB_UID},sharing=shared \
     --mount=type=cache,id=uvcache0,target=/home/${NB_USER}/.cache/uv,uid=${NB_UID},sharing=shared \
     which python3 && \
@@ -46,11 +44,12 @@ RUN --mount=type=cache,id=pipcache0,target=/home/${NB_USER}/.cache/pip,uid=${NB_
     #     ${REQUIREMENTS_TXT:+"-r"} \
     #     ${REQUIREMENTS_TXT:+"${REQUIREMENTS_TXT}"}
 
+COPY environment.yml /environment.yml
+ENV ENVIRONMENT_YML=/environment.yml
+
 USER root
 RUN --mount=type=cache,id=condacache0,target=/opt/conda/pkgs,uid=${NB_UID},sharing=shared \
-    mamba install -y build123d ipykernel ruff
-        # ${ENVIRONMENT_YML:+"-f} \
-        # ${ENVIRONMENT_YML:+"${ENVIRONMENT_YML}"}
+    mamba install -y -f ${ENVIRONMENT_YML?ERROR: must be specified}
 
 USER ${NB_USER}
 WORKDIR /workspaces
