@@ -14,7 +14,9 @@ LABEL org.opencontainers.image.authors=@westurner
 RUN --mount=type=cache,id=aptcache0,target=/var/cache/apt,sharing=shared \
     apt-get update && \
     export ENV TZ=US DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y --no-install-recommends sudo libgl1 libxrender1 && \
+    apt-get install -y --no-install-recommends sudo libgl1 libxrender1 \
+        \
+        make less bash-completion openssh-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

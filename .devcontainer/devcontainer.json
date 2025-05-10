@@ -1,11 +1,12 @@
 {
 	// For quick reference: https://containers.dev/implementors/json_reference/
-	"name": "Miniforge3",
+	"name": "workboard_cad_devcontainer",
 	//"image": "quay.io/condaforge/miniforge3:latest", // 25.3.0-1
-	"build": {
-		"context": "..",
-		"dockerfile": "../Dockerfile"
-	},
+	// "build": {
+	// 	"context": "..",
+	// 	"dockerfile": "../Dockerfile"
+	// },
+	"image": "westurner/workboard:0.0.1",
 
 	// 1. Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": []
@@ -55,6 +56,8 @@
 			},
 			// installs useful extensions
 			"extensions": [
+				"ms-vscode.makefile-tools",
+
 				"ms-python.python",
 				"ms-python.debugpy",
 				"ms-python.vscode-pylance",
