@@ -3,7 +3,7 @@
 
 channels:
   - conda-forge
-  - defaults
+  #- defaults
 dependencies:
   - build123d
   #- cadquery
