@@ -5,10 +5,18 @@ default: help
 
 help:
 	@echo "help	 	-- print help"
+	@echo "run           -- python ./workboard/workboard01.py"
 	@echo "podman-build  -- podman build . -t "
 	@echo "podman-run	 -- podman run --name \$$PODMAN_INSTANCE_NAME \$$PODMAN_IMAGE_NAME"
-	@echo ""
+	@echo "svg2build123d -- build123d..import_svg_as_buildline_code($SVG_PATH)''
 	cat ./Makefile | grep -E '^\w|'$$'\t'
+
+
+PYTHON=python
+#PYTHON=/opt/conda/bin/python
+run:
+	$(PYTHON) workboard/workboard01.py
+
 
 PODMAN_IMAGE_TAG="0.0.1"
 #PODMAN_IMAGE_TAG="latest"
@@ -35,8 +43,12 @@ check:
 	test -p "podman-rootless"
 
 
-PYTHON=python
-#PYTHON=/opt/conda/bin/python
-run:
-	$(PYTHON) workboard/workboard01.py
 
+import_svg_as_buildline_code=python -c "import build123d,sys; print(build123d.importers.import_svg_as_buildline_code(sys.argv[1])[0])"
+svg2build123d:
+	test -n "${SVG_PATH}"
+	$(import_svg_as_buildline_code) ${SVG_PATH}
+
+WORKBOARD_SVG_FILE=./workboard/workboard01__groove_handle_2d_v0.0.4.svg
+svg2build123d-workboard01:
+	$(MAKE) svg2build123d SVG_PATH=${WORKBOARD_SVG_FILE}
