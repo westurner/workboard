@@ -67,7 +67,19 @@ workboard_height = 25.4 * (5 / 8)  # height of the stand in mm
 circle_diameter = 30  # diameter of the inset circle in mm
 circle_depth = 20  # depth of the inset circle in mm
 
+
+board_magnetic_disc_diameter = (circle_diameter - 2)
+board_magnetic_disc_height = 1.0
+
+
 feet_height = 25.4  # height of the feet in mm
+feet_diameter = 25.4
+
+feet_magnetic_disc_diameter = (feet_diameter - 2)  # TODO
+#feet_magnetic_disc_diameter =  ((circle_diameter / 2) - 1),
+feet_magnetic_disc_height = 1.0
+
+
 
 circle_positions = [
     # (workboard_length * 0.25, workboard_width * 0.25),
@@ -75,12 +87,12 @@ circle_positions = [
     (
         workboard_length * 0.25,
         workboard_width * 0.65 - workboard_width,
-        0 #-1 * circle_depth,
+        feet_height / 2  # 0  # -1 * circle_depth,
     ),
     (
         workboard_length * -0.25,
         workboard_width * 0.65 - workboard_width,
-        -1 * circle_depth,
+        feet_height / 2  # -1 * circle_depth,
     ),
 ]
 
@@ -93,6 +105,7 @@ class Colors:
     GrayAlpha08 = Color(0.7, 0.7, 0.7, 0.8)
     SilverGrayAlpha08 = Color(0.5, 0.5, 0.5, 0.8)
     DarkGrayAlpha08 = Color(0.3, 0.3, 0.3, 0.8)
+    BrightRedAlpha08 = Color(0.8, 0.2, 0.2, 0.8)
 
 
 
@@ -148,62 +161,74 @@ def build_workboard():
         #     for x, y in circle_positions:
         #         Circle(radius=circle_diameter / 2)
 
-        base3d.color = Colors.SilverGrayAlpha08
-
         with BuildPart() as workboard:
             # workboard.color = Colors.SilverGrayAlpha08  # TODO: doesn't seem to work?
-            board = Part() + Box(
-                length=workboard_length, width=workboard_width, height=workboard_height
-            )
-            print(f"{board.edges()=}")
-            fillet(board.edges(), radius=25.4 * 0.25)  # Fillet the edges with a radius of 10 mm
+            with Locations((0,0, feet_height)):
+                board = Box(
+                    length=workboard_length, width=workboard_width, height=workboard_height
+                )
+                print(f"{board.edges()=}")
 
             with Locations(*circle_positions):
                 # Create inset circles for detachable magnetic laptop risers
                 inset = Cylinder(radius=circle_diameter / 2, height=feet_height, mode=Mode.SUBTRACT)
                 #inset.chamfer(1, None, (inset.faces()>>Axis.Z)[0].edges())
 
+            print(f"{board.edges()=}")
+            fillet(board.edges(), radius=25.4 * 0.25)  # Fillet the edges with a radius of 10 mm
 
             # Create a line with an inward curve at 0.8 / 1.0 along the right side of the board
             # todo_curvy_edge()
 
-
         with BuildPart() as magnetic_discs:
             # Create magnetic discs for the insets
-            with Locations(*circle_positions):
-                cylinder = Cylinder(
-                    radius=((circle_diameter - 2) / 2),
-                    height=0.2,
+            with Locations([(x[0], x[1], feet_height) for x in circle_positions]):
+                Cylinder(
+                    radius=board_magnetic_disc_diameter / 2,
+                    height=board_magnetic_disc_height,
                 )
+            magnetic_discs.part.color = Colors.GrayAlpha08
+
+        with BuildPart() as feet_magnetic_discs:
+            # Create magnetic discs for the insets
+            with Locations([(x[0], x[1], feet_height-feet_magnetic_disc_height) for x in circle_positions]):
+                Cylinder(
+                    radius=feet_magnetic_disc_diameter / 2,
+                    height=feet_magnetic_disc_height,
+                )
+            feet_magnetic_discs.part.color = Colors.GrayAlpha08
 
         with BuildPart() as feet:
             # Create magnetic feet
-            feet.color = Colors.DarkGrayAlpha08
             if show_feet_as == "attached":
                 with Locations(*circle_positions):
-                    Cylinder(radius=((circle_diameter - 2) / 2), height=feet_height)
+                    foot = Cylinder(radius=(feet_diameter / 2), height=feet_height)
+                    fillet(foot.edges().filter_by_position(Axis.Z, 0, 1, inclusive=(True, False)),
+                           radius=feet_height/3)
+            feet.part.color = Colors.DarkGrayAlpha08
+            feet.part.color = Colors.BrightRedAlpha08
 
-        # # [fillet(cylinder.edges(), radius=0.1) for cylinder in cylinders]  # Fillet the edges of the cylinders
-        # # fillet(cylinders.edges(), radius=10)  # Fillet the edges of the cylinders
+        # base3d.part.color = Colors.SilverGrayAlpha08
 
 
-        # Example usage
-        svg_path = """
-        m 83.73,35.95
-        c 7.82,0 671.2,0 671.2,0 8.08,0 17.68,6.45 16.28,17.95 -3,24.57 -8.2,72.15 -11.29,128.95 -2.15,39.48 13.62,142.27 13.62,190.57
-        V 1024.54
-        H 69.77
-        c 0,0 0,-966.8 0,-976.36 0,-9.55 6.14,-12.24 13.96,-12.24
-        z
-        """
-        # sketch = svg_path_to_build123d(svg_path)
+    # Example usage
+    svg_path = """
+    m 83.73,35.95
+    c 7.82,0 671.2,0 671.2,0 8.08,0 17.68,6.45 16.28,17.95 -3,24.57 -8.2,72.15 -11.29,128.95 -2.15,39.48 13.62,142.27 13.62,190.57
+    V 1024.54
+    H 69.77
+    c 0,0 0,-966.8 0,-976.36 0,-9.55 6.14,-12.24 13.96,-12.24
+    z
+    """
+    # sketch = svg_path_to_build123d(svg_path)
 
 
     return {
         "parts": {
             "base3d": base3d,
             "workboard": workboard,
-            "discs": magnetic_discs,
+            "magnetic_discs": magnetic_discs,
+            "feet_magnetic_discs": feet_magnetic_discs,
             "feet": feet,
         },
         "sketches": {
