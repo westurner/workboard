@@ -64,9 +64,9 @@ class Colors:
     MagnetBlack_a80 = Color(0.1, 0.1, 0.1, 0.8)
     MagnetBlack_a100 = Color(0.1, 0.1, 0.1, 1)
 
-    WoodColor1_a100 = Color(225/256, 187/256, 140/256, 1)
-    WoodColor2_a100 = Color(0xa8/0xff, 0x78/0xff, 0x3c/0xff, 1)
-    WoodColor3_a100 = Color(0x66/0xff, 0x49/0xff, 0x25/0xff, 1)
+    WoodColor1_a100 = Color(225 / 256, 187 / 256, 140 / 256, 1)
+    WoodColor2_a100 = Color(0xA8 / 0xFF, 0x78 / 0xFF, 0x3C / 0xFF, 1)
+    WoodColor3_a100 = Color(0x66 / 0xFF, 0x49 / 0xFF, 0x25 / 0xFF, 1)
 
 
 class Conf:
@@ -96,22 +96,18 @@ def build_config():
     cfg.circle_diameter = 30  # diameter of the inset circle in mm
     cfg.circle_depth = 20  # depth of the inset circle in mm
 
-
-    cfg.workboard_magnetic_disc_diameter = (cfg.circle_diameter - 2)
+    cfg.workboard_magnetic_disc_diameter = cfg.circle_diameter - 2
     cfg.workboard_magnetic_disc_height = 1.0
     cfg.workboard_magnetic_disc_color = Colors.MagnetBlack_a80
-
 
     cfg.feet_height = 25.4  # height of the feet in mm
     cfg.feet_diameter = 25.4
     cfg.feet_color = Colors.DarkGray_a100
 
-    cfg.feet_magnetic_disc_diameter = (cfg.feet_diameter - 2)  # TODO
-    #cfg.feet_magnetic_disc_diameter =  ((cfg.circle_diameter / 2) - 1),
+    cfg.feet_magnetic_disc_diameter = cfg.feet_diameter - 2  # TODO
+    # cfg.feet_magnetic_disc_diameter =  ((cfg.circle_diameter / 2) - 1),
     cfg.feet_magnetic_disc_height = 1.0
     cfg.feet_magnetic_disc_color = Colors.MagnetBlack_a80
-
-
 
     cfg.circle_positions = [
         # (cfg.workboard_length * 0.25, cfg.workboard_width * 0.25),
@@ -119,27 +115,26 @@ def build_config():
         (
             cfg.workboard_length * 0.25,
             cfg.workboard_width * 0.65 - cfg.workboard_width,
-            cfg.feet_height / 2  # 0  # -1 * circle_depth,
+            cfg.feet_height / 2,  # 0  # -1 * circle_depth,
         ),
         (
             cfg.workboard_length * -0.25,
             cfg.workboard_width * 0.65 - cfg.workboard_width,
-            cfg.feet_height / 2  # -1 * circle_depth,
+            cfg.feet_height / 2,  # -1 * circle_depth,
         ),
     ]
 
     cfg.show_feet_as = "attached"
-    #cfg.show_feet_as = 'detached'
+    # cfg.show_feet_as = 'detached'
 
     return cfg
 
 
 def build_workboard(cfg):
-
     if cfg is None:
         raise ValueError("cfg must not be None")
 
-    #with BuildPart() as base3d:
+    # with BuildPart() as base3d:
     # with BuildSketch() as sketch1:
     #     # Create a rectangle for the base of the stand
     #     Rectangle(cfg.workboard_length, cfg.workboard_width)
@@ -149,34 +144,55 @@ def build_workboard(cfg):
 
     with BuildPart() as workboard:
         # workboard.color = Colors.SilverGray_a08  # TODO: doesn't seem to work?
-        with Locations((0,0, cfg.feet_height)):
+        with Locations((0, 0, cfg.feet_height)):
             board = Part() + Box(
-                length=cfg.workboard_length, width=cfg.workboard_width, height=cfg.workboard_height
+                length=cfg.workboard_length,
+                width=cfg.workboard_width,
+                height=cfg.workboard_height,
             )
             print(f"{board.edges()=}")
 
         with Locations(*cfg.circle_positions):
             # Create inset circles for detachable magnetic laptop risers
-            inset = Cylinder(radius=cfg.circle_diameter / 2, height=cfg.feet_height, mode=Mode.SUBTRACT)
-            #inset.chamfer(1, None, (inset.faces()>>Axis.Z)[0].edges())
+            inset = Cylinder(
+                radius=cfg.circle_diameter / 2,
+                height=cfg.feet_height,
+                mode=Mode.SUBTRACT,
+            )
+            # inset.chamfer(1, None, (inset.faces()>>Axis.Z)[0].edges())
 
-        with Locations([(x[0], x[1], cfg.feet_height+(0*cfg.feet_magnetic_disc_height/2)) for x in cfg.circle_positions]):
+        with Locations(
+            [
+                (x[0], x[1], cfg.feet_height + (0 * cfg.feet_magnetic_disc_height / 2))
+                for x in cfg.circle_positions
+            ]
+        ):
             Cylinder(
                 radius=(cfg.workboard_magnetic_disc_diameter / 2) + 1,
                 height=cfg.workboard_magnetic_disc_height,
-                mode=Mode.SUBTRACT
+                mode=Mode.SUBTRACT,
             )
 
-
         print(f"{board.edges()=}")
-        fillet(board.edges(), radius=25.4 * 0.25)  # Fillet the edges with a radius of 10 mm
+        fillet(
+            board.edges(), radius=25.4 * 0.25
+        )  # Fillet the edges with a radius of 10 mm
 
         # Create a line with an inward curve at 0.8 / 1.0 along the right side of the board
         # todo_curvy_edge()
 
         with BuildPart() as workboard_magnetic_discs:
             # Create magnetic discs for the insets
-            with Locations([(x[0], x[1], cfg.feet_height+(cfg.workboard_magnetic_disc_height/2)) for x in cfg.circle_positions]):
+            with Locations(
+                [
+                    (
+                        x[0],
+                        x[1],
+                        cfg.feet_height + (cfg.workboard_magnetic_disc_height / 2),
+                    )
+                    for x in cfg.circle_positions
+                ]
+            ):
                 Cylinder(
                     radius=cfg.workboard_magnetic_disc_diameter / 2,
                     height=cfg.workboard_magnetic_disc_height,
@@ -187,18 +203,26 @@ def build_workboard(cfg):
         workboard.part.label = "workboard"
         workboard.part.color = cfg.workboard_color
 
-
     with BuildPart() as feet:
         # Create magnetic feet
         if cfg.show_feet_as == "attached":
             with Locations(*cfg.circle_positions):
                 foot = Cylinder(radius=(cfg.feet_diameter / 2), height=cfg.feet_height)
-                fillet(foot.edges().filter_by_position(Axis.Z, 0, 1, inclusive=(True, False)),
-                        radius=cfg.feet_height/3)
+                fillet(
+                    foot.edges().filter_by_position(
+                        Axis.Z, 0, 1, inclusive=(True, False)
+                    ),
+                    radius=cfg.feet_height / 3,
+                )
 
         with BuildPart() as feet_magnetic_discs:
             # Create magnetic discs for the insets
-            with Locations([(x[0], x[1], cfg.feet_height-(cfg.feet_magnetic_disc_height/2)) for x in cfg.circle_positions]):
+            with Locations(
+                [
+                    (x[0], x[1], cfg.feet_height - (cfg.feet_magnetic_disc_height / 2))
+                    for x in cfg.circle_positions
+                ]
+            ):
                 Cylinder(
                     radius=cfg.feet_magnetic_disc_diameter / 2,
                     height=cfg.feet_magnetic_disc_height,
@@ -206,9 +230,8 @@ def build_workboard(cfg):
             feet_magnetic_discs.part.label = "feet.magnets"
             feet_magnetic_discs.part.color = cfg.feet_magnetic_disc_color
 
-        feet.part.label = 'feet'
+        feet.part.label = "feet"
         feet.part.color = cfg.feet_color
-
 
     # Example usage
     svg_path = """
@@ -221,7 +244,6 @@ def build_workboard(cfg):
     """
     # sketch = svg_path_to_build123d(svg_path)
 
-
     data = {
         "parts": {
             "workboard": workboard,
@@ -230,13 +252,13 @@ def build_workboard(cfg):
             "feet": feet,
         },
         "sketches": {},
-        "assemblies": {}
+        "assemblies": {},
     }
 
-    workboard_assembly = data["assemblies"]["workboard_assembly"] = (
-        Compound(label="workboard",
-                 children=[v.part for v in data["parts"].values() if v]))
-    
+    workboard_assembly = data["assemblies"]["workboard_assembly"] = Compound(
+        label="workboard", children=[v.part for v in data["parts"].values() if v]
+    )
+
     print("DEBUG: workboard_assembly.show_topology()=")
     print(workboard_assembly.show_topology())
     return data
@@ -257,8 +279,7 @@ data = build_workboard(cfg)
 
 def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterable):
     # name_prefix = "workboard01"
-    exportfilenames = data['export_filenames'] = {}
-
+    exportfilenames = data["export_filenames"] = {}
 
     if filenameprefix is None:
         filename_prefix = __file__.split(".")[0]  # Use the script name as the prefix
@@ -266,43 +287,41 @@ def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterabl
         filename_prefix = filenameprefix
 
     if filenameprefixsuffix:
-        filename_prefix = f'{filename_prefix}__{filenameprefixsuffix}_'
-
+        filename_prefix = f"{filename_prefix}__{filenameprefixsuffix}_"
 
     for name, base in partsiterable:
         if filenameprefixsuffix == "part":
             part = base.part
         else:
             part = base
-        exportfilenames['.step'] = f"{filename_prefix}_{name}.step"
-        exportfilenames['.stl'] = f"{filename_prefix}_{name}.stl"
-        exportfilenames['.txt.stl'] = f"{filename_prefix}_{name}.txt.stl"
-        exportfilenames['.gltf'] = f"{filename_prefix}_{name}.gltf"
+        exportfilenames[".step"] = f"{filename_prefix}_{name}.step"
+        exportfilenames[".stl"] = f"{filename_prefix}_{name}.stl"
+        exportfilenames[".txt.stl"] = f"{filename_prefix}_{name}.txt.stl"
+        exportfilenames[".gltf"] = f"{filename_prefix}_{name}.gltf"
 
         # Export the model
-        export_step(part, exportfilenames['.step'])
+        export_step(part, exportfilenames[".step"])
 
         # Export the model as an STL file
-        export_stl(part, exportfilenames['.stl'])
-                   
-        # Export the model as an STL file
-        export_stl(part, exportfilenames['.txt.stl'], ascii_format=True)
+        export_stl(part, exportfilenames[".stl"])
 
         # Export the model as an STL file
-        export_gltf(part, exportfilenames['.gltf'])
+        export_stl(part, exportfilenames[".txt.stl"], ascii_format=True)
+
+        # Export the model as an STL file
+        export_gltf(part, exportfilenames[".gltf"])
 
     return exportfilenames
 
 
 do_export_files = True
 if do_export_files:
-
-    data['export_part_filenames'] = export_files(
-        filenameprefixsuffix='part',
-        partsiterable=data["parts"].items())
-    data['export_assembly_filenames'] = export_files(
-        filenameprefixsuffix='assembly',
-        partsiterable=data["assemblies"].items())
+    data["export_part_filenames"] = export_files(
+        filenameprefixsuffix="part", partsiterable=data["parts"].items()
+    )
+    data["export_assembly_filenames"] = export_files(
+        filenameprefixsuffix="assembly", partsiterable=data["assemblies"].items()
+    )
 
 
 def running_in_vscode():
@@ -321,9 +340,8 @@ if running_in_vscode():
     # Show the model in the OCP VSCode viewer
     try:
         show_all(data["assemblies"])
-        #show(data["parts"]["base3d"], "Workboard 3D Model")
+        # show(data["parts"]["base3d"], "Workboard 3D Model")
     except RuntimeError as exc:
         print(exc)
         print("""In vscode: Ctrl-Shift-P "OCP CAD Viewer: Open viewer (Ctrl+K V)""")
         raise
-
