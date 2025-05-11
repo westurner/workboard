@@ -48,167 +48,166 @@ from build123d.build_part import BuildPart
 from build123d.build_sketch import BuildSketch
 from build123d.geometry import Color, Vector
 
-# Define dimensions for the CAD model
-laptop_length = 15.6  # inches
-laptop_width = 10.0  # approximate width in inches
-laptop_height = 0.8  # approximate height in inches
-
-# Convert dimensions to millimeters (1 inch = 25.4 mm)
-laptop_length_mm = laptop_length * 25.4
-laptop_width_mm = laptop_width * 25.4
-laptop_height_mm = laptop_height * 25.4
-
-# Define the base dimensions for the stand
-workboard_length = laptop_length_mm
-workboard_width = laptop_width_mm
-workboard_height = 25.4 * (5 / 8)  # height of the stand in mm
-
-# Define the inset circle dimensions
-circle_diameter = 30  # diameter of the inset circle in mm
-circle_depth = 20  # depth of the inset circle in mm
-
-
-board_magnetic_disc_diameter = (circle_diameter - 2)
-board_magnetic_disc_height = 1.0
-
-
-feet_height = 25.4  # height of the feet in mm
-feet_diameter = 25.4
-
-feet_magnetic_disc_diameter = (feet_diameter - 2)  # TODO
-#feet_magnetic_disc_diameter =  ((circle_diameter / 2) - 1),
-feet_magnetic_disc_height = 1.0
-
-
-
-circle_positions = [
-    # (workboard_length * 0.25, workboard_width * 0.25),
-    # (workboard_length * 0.75, workboard_width * 0.25),
-    (
-        workboard_length * 0.25,
-        workboard_width * 0.65 - workboard_width,
-        feet_height / 2  # 0  # -1 * circle_depth,
-    ),
-    (
-        workboard_length * -0.25,
-        workboard_width * 0.65 - workboard_width,
-        feet_height / 2  # -1 * circle_depth,
-    ),
-]
-
-show_feet_as = "attached"
-#show_feet_as = 'detached'
-
 
 class Colors:
-    GrayAlpha100 = Color(0.7, 0.7, 0.7, 1.0)
-    GrayAlpha08 = Color(0.7, 0.7, 0.7, 0.8)
-    SilverGrayAlpha08 = Color(0.5, 0.5, 0.5, 0.8)
-    DarkGrayAlpha08 = Color(0.3, 0.3, 0.3, 0.8)
-    BrightRedAlpha08 = Color(0.8, 0.2, 0.2, 0.8)
+    Gray_a0 = Color(0.7, 0.7, 0.7, 0)
+    Gray_a80 = Color(0.7, 0.7, 0.7, 0.8)
+    Gray_a100 = Color(0.7, 0.7, 0.7, 1.0)
+    SilverGray_a0 = Color(0.5, 0.5, 0.5, 0)
+    SilverGray_a80 = Color(0.5, 0.5, 0.5, 0.8)
+    SilverGray_a100 = Color(0.5, 0.5, 0.5, 1.0)
+    DarkGray_a0 = Color(0.3, 0.3, 0.3, 0)
+    DarkGray_a80 = Color(0.3, 0.3, 0.3, 0.8)
+    DarkGray_a100 = Color(0.3, 0.3, 0.3, 1.0)
+    BrightRed_a80 = Color(0.8, 0, 0, 0.8)
+    MagnetBlack_a0 = Color(0.1, 0.1, 0.1, 0)
+    MagnetBlack_a80 = Color(0.1, 0.1, 0.1, 0.8)
+    MagnetBlack_a100 = Color(0.1, 0.1, 0.1, 1)
+
+    WoodColor1_a100 = Color(225/256, 187/256, 140/256, 1)
+    WoodColor2_a100 = Color(0xa8/0xff, 0x78/0xff, 0x3c/0xff, 1)
+    WoodColor3_a100 = Color(0x66/0xff, 0x49/0xff, 0x25/0xff, 1)
+
+
+class Conf:
+    pass
+
+
+def build_config():
+    cfg = Conf()
+
+    # Define dimensions for the CAD model
+    cfg.laptop_length = 15.6  # inches
+    cfg.laptop_width = 10.0  # approximate width in inches
+    cfg.laptop_height = 0.8  # approximate height in inches
+
+    # Convert dimensions to millimeters (1 inch = 25.4 mm)
+    cfg.laptop_length_mm = cfg.laptop_length * 25.4
+    cfg.laptop_width_mm = cfg.laptop_width * 25.4
+    cfg.laptop_height_mm = cfg.laptop_height * 25.4
+
+    # Define the base dimensions for the stand
+    cfg.workboard_length = cfg.laptop_length_mm
+    cfg.workboard_width = cfg.laptop_width_mm
+    cfg.workboard_height = 25.4 * (5 / 8)  # height of the stand in mm
+    cfg.workboard_color = Colors.WoodColor3_a100
+
+    # Define the inset circle dimensions
+    cfg.circle_diameter = 30  # diameter of the inset circle in mm
+    cfg.circle_depth = 20  # depth of the inset circle in mm
+
+
+    cfg.workboard_magnetic_disc_diameter = (cfg.circle_diameter - 2)
+    cfg.workboard_magnetic_disc_height = 1.0
+    cfg.workboard_magnetic_disc_color = Colors.MagnetBlack_a80
+
+
+    cfg.feet_height = 25.4  # height of the feet in mm
+    cfg.feet_diameter = 25.4
+    cfg.feet_color = Colors.DarkGray_a100
+
+    cfg.feet_magnetic_disc_diameter = (cfg.feet_diameter - 2)  # TODO
+    #cfg.feet_magnetic_disc_diameter =  ((cfg.circle_diameter / 2) - 1),
+    cfg.feet_magnetic_disc_height = 1.0
+    cfg.feet_magnetic_disc_color = Colors.MagnetBlack_a80
 
 
 
-# def svg_path_to_build123d(svg_path: str):
-#     """
-#     Translates an SVG path string to build123d Python code.
+    cfg.circle_positions = [
+        # (cfg.workboard_length * 0.25, cfg.workboard_width * 0.25),
+        # (cfg.workboard_length * 0.75, cfg.workboard_width * 0.25),
+        (
+            cfg.workboard_length * 0.25,
+            cfg.workboard_width * 0.65 - cfg.workboard_width,
+            cfg.feet_height / 2  # 0  # -1 * circle_depth,
+        ),
+        (
+            cfg.workboard_length * -0.25,
+            cfg.workboard_width * 0.65 - cfg.workboard_width,
+            cfg.feet_height / 2  # -1 * circle_depth,
+        ),
+    ]
 
-#     Args:
-#         svg_path (str): The SVG path string.
+    cfg.show_feet_as = "attached"
+    #cfg.show_feet_as = 'detached'
 
-#     Returns:
-#         BuildSketch: A build123d sketch object representing the path.
-#     """
-#     with BuildSketch() as sketch:
-#         for svg_path_line in svg_path.splitlines():
-#             commands = svg_path_line.split()
-#             i = 0
-#             while i < len(commands):
-#                 command = commands[i]
-#                 if command == 'm':  # Move to
-#                     x, y = map(float, commands[i + 1].split(','))
-#                     #sketch.move_to(Vector(x, y))
-#                     sketch.current_position = Vector(x,y)
-#                     i += 2
-#                 elif command == 'c':  # Cubic Bezier curve
-#                     control1 = tuple(map(float, commands[i + 1].split(',')))
-#                     control2 = tuple(map(float, commands[i + 2].split(',')))
-#                     end_point = tuple(map(float, commands[i + 3].split(',')))
-#                     Bezier(sketch.current_position, Vector(*control1), Vector(*control2), Vector(*end_point))
-#                     i += 4
-#                 elif command == 'V':  # Vertical line
-#                     y = float(commands[i + 1])
-#                     Line(sketch.current_position, Vector(sketch.current_position.X, y))
-#                     i += 2
-#                 elif command == 'H':  # Horizontal line
-#                     x = float(commands[i + 1])
-#                     Line(sketch.current_position, Vector(x, sketch.current_position.Y))
-#                     i += 2
-#                 elif command == 'z':  # Close path
-#                     # sketch.close()  # TODO
-#                     i += 1
-#                 else:
-#                     i += 1  # Skip unrecognized commands
-#     return sketch
+    return cfg
 
 
-def build_workboard():
-    with BuildPart() as base3d:
-        # with BuildSketch() as sketch1:
-        #     # Create a rectangle for the base of the stand
-        #     Rectangle(workboard_length, workboard_width)
-        #     # Create inset circles for detachable magnetic laptop risers
-        #     for x, y in circle_positions:
-        #         Circle(radius=circle_diameter / 2)
+def build_workboard(cfg):
 
-        with BuildPart() as workboard:
-            # workboard.color = Colors.SilverGrayAlpha08  # TODO: doesn't seem to work?
-            with Locations((0,0, feet_height)):
-                board = Box(
-                    length=workboard_length, width=workboard_width, height=workboard_height
-                )
-                print(f"{board.edges()=}")
+    if cfg is None:
+        raise ValueError("cfg must not be None")
 
-            with Locations(*circle_positions):
-                # Create inset circles for detachable magnetic laptop risers
-                inset = Cylinder(radius=circle_diameter / 2, height=feet_height, mode=Mode.SUBTRACT)
-                #inset.chamfer(1, None, (inset.faces()>>Axis.Z)[0].edges())
+    #with BuildPart() as base3d:
+    # with BuildSketch() as sketch1:
+    #     # Create a rectangle for the base of the stand
+    #     Rectangle(cfg.workboard_length, cfg.workboard_width)
+    #     # Create inset circles for detachable magnetic laptop risers
+    #     for x, y in circle_positions:
+    #         Circle(radius=circle_diameter / 2)
 
+    with BuildPart() as workboard:
+        # workboard.color = Colors.SilverGray_a08  # TODO: doesn't seem to work?
+        with Locations((0,0, cfg.feet_height)):
+            board = Part() + Box(
+                length=cfg.workboard_length, width=cfg.workboard_width, height=cfg.workboard_height
+            )
             print(f"{board.edges()=}")
-            fillet(board.edges(), radius=25.4 * 0.25)  # Fillet the edges with a radius of 10 mm
 
-            # Create a line with an inward curve at 0.8 / 1.0 along the right side of the board
-            # todo_curvy_edge()
+        with Locations(*cfg.circle_positions):
+            # Create inset circles for detachable magnetic laptop risers
+            inset = Cylinder(radius=cfg.circle_diameter / 2, height=cfg.feet_height, mode=Mode.SUBTRACT)
+            #inset.chamfer(1, None, (inset.faces()>>Axis.Z)[0].edges())
 
-        with BuildPart() as magnetic_discs:
+        with Locations([(x[0], x[1], cfg.feet_height+(0*cfg.feet_magnetic_disc_height/2)) for x in cfg.circle_positions]):
+            Cylinder(
+                radius=(cfg.workboard_magnetic_disc_diameter / 2) + 1,
+                height=cfg.workboard_magnetic_disc_height,
+                mode=Mode.SUBTRACT
+            )
+
+
+        print(f"{board.edges()=}")
+        fillet(board.edges(), radius=25.4 * 0.25)  # Fillet the edges with a radius of 10 mm
+
+        # Create a line with an inward curve at 0.8 / 1.0 along the right side of the board
+        # todo_curvy_edge()
+
+        with BuildPart() as workboard_magnetic_discs:
             # Create magnetic discs for the insets
-            with Locations([(x[0], x[1], feet_height) for x in circle_positions]):
+            with Locations([(x[0], x[1], cfg.feet_height+(cfg.workboard_magnetic_disc_height/2)) for x in cfg.circle_positions]):
                 Cylinder(
-                    radius=board_magnetic_disc_diameter / 2,
-                    height=board_magnetic_disc_height,
+                    radius=cfg.workboard_magnetic_disc_diameter / 2,
+                    height=cfg.workboard_magnetic_disc_height,
                 )
-            magnetic_discs.part.color = Colors.GrayAlpha08
+            workboard_magnetic_discs.part.label = "workboard.magnets"
+            workboard_magnetic_discs.part.color = cfg.workboard_magnetic_disc_color
+
+        workboard.part.label = "workboard"
+        workboard.part.color = cfg.workboard_color
+
+
+    with BuildPart() as feet:
+        # Create magnetic feet
+        if cfg.show_feet_as == "attached":
+            with Locations(*cfg.circle_positions):
+                foot = Cylinder(radius=(cfg.feet_diameter / 2), height=cfg.feet_height)
+                fillet(foot.edges().filter_by_position(Axis.Z, 0, 1, inclusive=(True, False)),
+                        radius=cfg.feet_height/3)
 
         with BuildPart() as feet_magnetic_discs:
             # Create magnetic discs for the insets
-            with Locations([(x[0], x[1], feet_height-feet_magnetic_disc_height) for x in circle_positions]):
+            with Locations([(x[0], x[1], cfg.feet_height-(cfg.feet_magnetic_disc_height/2)) for x in cfg.circle_positions]):
                 Cylinder(
-                    radius=feet_magnetic_disc_diameter / 2,
-                    height=feet_magnetic_disc_height,
+                    radius=cfg.feet_magnetic_disc_diameter / 2,
+                    height=cfg.feet_magnetic_disc_height,
                 )
-            feet_magnetic_discs.part.color = Colors.GrayAlpha08
+            feet_magnetic_discs.part.label = "feet.magnets"
+            feet_magnetic_discs.part.color = cfg.feet_magnetic_disc_color
 
-        with BuildPart() as feet:
-            # Create magnetic feet
-            if show_feet_as == "attached":
-                with Locations(*circle_positions):
-                    foot = Cylinder(radius=(feet_diameter / 2), height=feet_height)
-                    fillet(foot.edges().filter_by_position(Axis.Z, 0, 1, inclusive=(True, False)),
-                           radius=feet_height/3)
-            feet.part.color = Colors.DarkGrayAlpha08
-            feet.part.color = Colors.BrightRedAlpha08
-
-        # base3d.part.color = Colors.SilverGrayAlpha08
+        feet.part.label = 'feet'
+        feet.part.color = cfg.feet_color
 
 
     # Example usage
@@ -223,18 +222,24 @@ def build_workboard():
     # sketch = svg_path_to_build123d(svg_path)
 
 
-    return {
+    data = {
         "parts": {
-            "base3d": base3d,
             "workboard": workboard,
-            "magnetic_discs": magnetic_discs,
+            "workboard_magnetic_discs": workboard_magnetic_discs,
             "feet_magnetic_discs": feet_magnetic_discs,
             "feet": feet,
         },
-        "sketches": {
-
-        }
+        "sketches": {},
+        "assemblies": {}
     }
+
+    workboard_assembly = data["assemblies"]["workboard_assembly"] = (
+        Compound(label="workboard",
+                 children=[v.part for v in data["parts"].values() if v]))
+    
+    print("DEBUG: workboard_assembly.show_topology()=")
+    print(workboard_assembly.show_topology())
+    return data
 
 
 def todo_curvy_edge(board):
@@ -246,42 +251,79 @@ def todo_curvy_edge(board):
     board.replace_edge(board.edges()[0], curvy_edge)
 
 
+cfg = build_config()
+data = build_workboard(cfg)
 
-data = build_workboard()
-do_export_files = False
-if do_export_files:
+
+def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterable):
     # name_prefix = "workboard01"
-    name_prefix = __file__.split(".")[0]  # Use the script name as the prefix
-    for name, base in data["parts"]:
+    exportfilenames = data['export_filenames'] = {}
+
+
+    if filenameprefix is None:
+        filename_prefix = __file__.split(".")[0]  # Use the script name as the prefix
+    else:
+        filename_prefix = filenameprefix
+
+    if filenameprefixsuffix:
+        filename_prefix = f'{filename_prefix}__{filenameprefixsuffix}_'
+
+
+    for name, base in partsiterable:
+        if filenameprefixsuffix == "part":
+            part = base.part
+        else:
+            part = base
+        exportfilenames['.step'] = f"{filename_prefix}_{name}.step"
+        exportfilenames['.stl'] = f"{filename_prefix}_{name}.stl"
+        exportfilenames['.txt.stl'] = f"{filename_prefix}_{name}.txt.stl"
+        exportfilenames['.gltf'] = f"{filename_prefix}_{name}.gltf"
+
         # Export the model
-        export_step(base, f"{name_prefix}_{name}.step")
+        export_step(part, exportfilenames['.step'])
 
         # Export the model as an STL file
-        export_stl(base, f"{name_prefix}_{name}.stl")
+        export_stl(part, exportfilenames['.stl'])
+                   
+        # Export the model as an STL file
+        export_stl(part, exportfilenames['.txt.stl'], ascii_format=True)
 
         # Export the model as an STL file
-        export_stl(base, f"{name_prefix}_{name}.txt.stl", ascii_format=True)
+        export_gltf(part, exportfilenames['.gltf'])
 
-        # Export the model as an STL file
-        export_gltf(base, f"{name_prefix}_{name}.gltf")
+    return exportfilenames
+
+
+do_export_files = True
+if do_export_files:
+
+    data['export_part_filenames'] = export_files(
+        filenameprefixsuffix='part',
+        partsiterable=data["parts"].items())
+    data['export_assembly_filenames'] = export_files(
+        filenameprefixsuffix='assembly',
+        partsiterable=data["assemblies"].items())
+
 
 def running_in_vscode():
     return "VSCODE_IPC_HOOK_CLI" in os.environ
 
+
 if running_in_vscode():
     # ocp_vscode is used to visualize the model in VSCode
     # Install the "OCP CAD Viewer" extension in VSCode to view the model
-    from ocp_vscode import show
+    from ocp_vscode import show_all  # , show
 
     # Ensure ocp_vscode is installed to visualize the model in VSCode
     # Install ocp_vscode via pip if not already installed:
-    # pip install ocp-vscode
+    # $ pip install ocp-vscode
+
     # Show the model in the OCP VSCode viewer
     try:
-        show(data["parts"]["base3d"], "Workboard 3D Model")
+        show_all(data["assemblies"])
+        #show(data["parts"]["base3d"], "Workboard 3D Model")
     except RuntimeError as exc:
         print(exc)
         print("""In vscode: Ctrl-Shift-P "OCP CAD Viewer: Open viewer (Ctrl+K V)""")
         raise
-    # This code creates a simple laptop stand model with inset circles for detachable magnetic risers.
-    # The model is exported in STEP and STL formats for further use or 3D printing.
+
