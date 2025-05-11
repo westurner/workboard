@@ -23,6 +23,7 @@ A simple laptop stand model with inset circles for detachable magnetic risers.
 # SPDX-License-Identifier:
 
 import os
+import pprint
 
 # Import necessary modules from build123d
 from build123d import (
@@ -234,7 +235,7 @@ def build_workboard(cfg):
         feet.part.color = cfg.feet_color
 
     # Example usage
-    svg_path = """
+    todo_svg_path = """
     m 83.73,35.95
     c 7.82,0 671.2,0 671.2,0 8.08,0 17.68,6.45 16.28,17.95 -3,24.57 -8.2,72.15 -11.29,128.95 -2.15,39.48 13.62,142.27 13.62,190.57
     V 1024.54
@@ -273,13 +274,8 @@ def todo_curvy_edge(board):
     board.replace_edge(board.edges()[0], curvy_edge)
 
 
-cfg = build_config()
-data = build_workboard(cfg)
-
-
 def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterable):
-    # name_prefix = "workboard01"
-    exportfilenames = data["export_filenames"] = {}
+    exportfilenames = {}
 
     if filenameprefix is None:
         filename_prefix = __file__.split(".")[0]  # Use the script name as the prefix
@@ -294,6 +290,7 @@ def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterabl
             part = base.part
         else:
             part = base
+
         exportfilenames[".step"] = f"{filename_prefix}_{name}.step"
         exportfilenames[".stl"] = f"{filename_prefix}_{name}.stl"
         exportfilenames[".txt.stl"] = f"{filename_prefix}_{name}.txt.stl"
@@ -314,34 +311,43 @@ def export_files(*, filenameprefix=None, filenameprefixsuffix=None, partsiterabl
     return exportfilenames
 
 
-do_export_files = True
-if do_export_files:
-    data["export_part_filenames"] = export_files(
-        filenameprefixsuffix="part", partsiterable=data["parts"].items()
-    )
-    data["export_assembly_filenames"] = export_files(
-        filenameprefixsuffix="assembly", partsiterable=data["assemblies"].items()
-    )
-
-
 def running_in_vscode():
     return "VSCODE_IPC_HOOK_CLI" in os.environ
 
 
-if running_in_vscode():
-    # ocp_vscode is used to visualize the model in VSCode
-    # Install the "OCP CAD Viewer" extension in VSCode to view the model
-    from ocp_vscode import show_all  # , show
+def main():
+    cfg = build_config()
+    data = build_workboard(cfg)
 
-    # Ensure ocp_vscode is installed to visualize the model in VSCode
-    # Install ocp_vscode via pip if not already installed:
-    # $ pip install ocp-vscode
+    do_export_files = True
+    if do_export_files:
+        data["export_part_filenames"] = export_files(
+            filenameprefixsuffix="part", partsiterable=data["parts"].items()
+        )
+        data["export_assembly_filenames"] = export_files(
+            filenameprefixsuffix="assembly", partsiterable=data["assemblies"].items()
+        )
+    pprint.pprint(data, sort_dicts=False)
 
-    # Show the model in the OCP VSCode viewer
-    try:
-        show_all(data["assemblies"])
-        # show(data["parts"]["base3d"], "Workboard 3D Model")
-    except RuntimeError as exc:
-        print(exc)
-        print("""In vscode: Ctrl-Shift-P "OCP CAD Viewer: Open viewer (Ctrl+K V)""")
-        raise
+
+    if running_in_vscode():
+        # ocp_vscode is used to visualize the model in VSCode
+        # Install the "OCP CAD Viewer" extension in VSCode to view the model
+        from ocp_vscode import show_all  # , show
+
+        # Ensure ocp_vscode is installed to visualize the model in VSCode
+        # Install ocp_vscode via pip if not already installed:
+        # $ pip install ocp-vscode
+
+        # Show the model in the OCP VSCode viewer
+        try:
+            show_all(data["assemblies"])
+            # show(data["parts"]["base3d"], "Workboard 3D Model")
+        except RuntimeError as exc:
+            print(exc)
+            print("""In vscode: Ctrl-Shift-P "OCP CAD Viewer: Open viewer (Ctrl+K V)""")
+            raise
+
+
+if __name__ == "__main__":
+    main()
