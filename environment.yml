@@ -7,8 +7,10 @@ channels:
 dependencies:
   - build123d
   #- cadquery
+  #- freecad
   - ipykernel
   - ruff
   - pip
   - pip:
     - ocp_vscode
+  #  - jupyter-cadquery
