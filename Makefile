@@ -8,6 +8,7 @@ help:
 	@echo "run           -- python ./workboard/workboard01.py"
 	@echo "podman-build  -- podman build . -t "
 	@echo "podman-run	 -- podman run --name \$$PODMAN_INSTANCE_NAME \$$PODMAN_IMAGE_NAME"
+	@echo "podman-exec   -- podman exec --name \$$PODMAN_INSTANCE_NAME"
 	@echo "svg2build123d -- build123d..import_svg_as_buildline_code($SVG_PATH)''
 	cat ./Makefile | grep -E '^\w|'$$'\t'
 
@@ -18,9 +19,9 @@ run:
 	$(PYTHON) workboard/workboard01.py
 
 
-PODMAN_IMAGE_TAG="0.0.1"
+PODMAN_IMAGE_TAG=0.0.1
 #PODMAN_IMAGE_TAG="latest"
-PODMAN_IMAGE_NAME="westurner/workboard:${PODMAN_IMAGE_TAG}"
+PODMAN_IMAGE_NAME=westurner/workboard:${PODMAN_IMAGE_TAG}
 
 podman-build:
 	podman build . -t "${PODMAN_IMAGE_NAME}"
@@ -29,10 +30,13 @@ podman-build:
 PODMAN_RM=
 #PODMAN_RM=--rm
 
-PODMAN_INSTANCE_NAME="workboard0"
+PODMAN_INSTANCE_NAME ?=workboard0
 
 podman-run:
 	podman run ${PODMAN_RM} -it --name "${PODMAN_INSTANCE_NAME}" "${PODMAN_IMAGE_NAME}"
+
+podman-exec-bash:
+	podman exec -it "${PODMAN_INSTANCE_NAME}" bash --login
 
 check:
 	ls -al .devcontainer/{devcontainer.json,podman-rootless} Dockerfile environment.yml requirements.txt
@@ -52,3 +56,10 @@ svg2build123d:
 WORKBOARD_SVG_FILE=./workboard/workboard01__groove_handle_2d_v0.0.4.svg
 svg2build123d-workboard01:
 	$(MAKE) svg2build123d SVG_PATH=${WORKBOARD_SVG_FILE}
+
+
+pytest:
+	pytest -v ./workboard
+
+pytestx:
+	pytest -x -v ./workboard

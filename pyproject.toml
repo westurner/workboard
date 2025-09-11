@@ -1,0 +1,65 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "workboard"
+version = "0.0.1"
+description = "Parametric CAD models and examples using build123d"
+readme = "workboard01.md"
+requires-python = ">=3.11"
+keywords = ["cad", "build123d", "ocp", "3d", "stl"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+# Runtime dependencies inferred from the code in workboard/*.py
+dependencies = [
+    "build123d",
+    "pydantic",
+    #"numpy",
+    #"sympy",
+]
+
+[project.optional-dependencies]
+# Development and test helpers
+dev = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "mypy",
+    "flake8",
+    "ocp-vscode",
+]
+
+[project.scripts]
+workboard = "workboard.workboard01:main"
+pizza-pan-cooling-mat = "workboard.projects.pizzapancoolingmat.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["workboard*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311", "py312"]
+
+[tool.mypy]
+python_version = 3.11
+ignore_missing_imports = true
+
+# Preserve the user's existing pytest settings
+[tool.pytest.ini_options]
+#minversion = "6.0"
+#addopts = "-ra -q"
+#testpaths = [
+#    "tests",
+#    "integration",
+#]
+addopts = "-W ignore::pytest.PytestReturnNotNoneWarning"

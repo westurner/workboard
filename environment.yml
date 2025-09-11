@@ -8,9 +8,11 @@ dependencies:
   - build123d
   #- cadquery
   #- freecad
+  - pydantic
   - ipykernel
   - ruff
+  - pytest
   - pip
   - pip:
-    - ocp_vscode
+    - ocp_vscode>=2.8.5
   #  - jupyter-cadquery

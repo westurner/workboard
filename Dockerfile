@@ -46,12 +46,12 @@ RUN --mount=type=cache,id=pipcache0,target=/home/${NB_USER}/.cache/pip,uid=${NB_
     #     ${REQUIREMENTS_TXT:+"-r"} \
     #     ${REQUIREMENTS_TXT:+"${REQUIREMENTS_TXT}"}
 
-COPY environment.yml /environment.yml
 ENV ENVIRONMENT_YML=/environment.yml
+COPY ${ENVIRONMENT_YML} /environment.yml
 
 USER root
 RUN --mount=type=cache,id=condacache0,target=/opt/conda/pkgs,uid=${NB_UID},sharing=shared \
-    mamba install -y -f ${ENVIRONMENT_YML?ERROR: must be specified}
+    mamba install -y -f "${ENVIRONMENT_YML?ERROR: must be specified}"
 
 USER ${NB_USER}
 WORKDIR /workspaces
