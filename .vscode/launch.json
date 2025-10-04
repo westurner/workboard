@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Run pizzapancoolingmat as module",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            //"module": "workboard.projects.pizzapancoolingmat.pizzapancoolingmat",
+            "justMyCode": true,
+            "console": "integratedTerminal"
+        }
+    ]
+}
