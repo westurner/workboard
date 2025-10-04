@@ -5,13 +5,17 @@ This file is intended to be imported at the top level of each module that needs 
 Avoid importing from pizzapancoolingmat.py or other component modules here to prevent circular imports.
 """
 
+import pprint
+
 from pydantic import BaseModel, Field, JsonValue
+
 
 # UNIT_MM = {"unit": "mm"}
 # UNIT_MM: dict[str, str] = {"unit": "mm"}
+
 UNIT_MM_AND_REQUIRED: dict[str, JsonValue] = {"unit": "mm", "_required": True}
 
-INCH = 25.4
+INCH = 25.4  # mm
 
 
 class PanModel(BaseModel):
@@ -39,12 +43,12 @@ class RiserModel(BaseModel):
         json_schema_extra=UNIT_MM_AND_REQUIRED,
     )
     width: float = Field(
-        (7/8)*INCH,
+        (7 / 8) * INCH,
         description="Width of the riser in mm.",
         json_schema_extra=UNIT_MM_AND_REQUIRED,
     )
     height: float = Field(
-        (3/8)*INCH,
+        (3 / 8) * INCH,
         description="Height of the riser in mm.",
         json_schema_extra=UNIT_MM_AND_REQUIRED,
     )
@@ -68,22 +72,34 @@ class LaptopModel(BaseModel):
     )
 
 
-INCH = 25.4  # mm
-
 # Centralized default sets for easy extension
 DEFAULTS = {
     "default0": {
-        "pan": PanModel(diameter=330, thickness=3, rim_height=2).model_dump(),
+        "pan": PanModel(
+            diameter=330,
+            thickness=3,
+            rim_height=2
+        ).model_dump(),
+
         # "riser": RiserModel(length=40, width=20, height=20).model_dump(),
         "riser": RiserModel(
             length=(1 + (7 / 8)) * INCH,
             width=(7 / 8) * INCH,
             height=(3 / 8) * INCH
         ).model_dump(),
-        "laptop": LaptopModel(length=360, width=250, thickness=18).model_dump(),
+
+        "laptop": LaptopModel(
+            length=360,
+            width=250,
+            thickness=18
+        ).model_dump(),
     }
 }
 
-from pprint import pprint
-print("DEFAULTS: ")
-pprint(DEFAULTS)
+
+def debug_print_defaults():
+    pprint.pprint("# DEFAULTS=")
+    pprint.pprint(DEFAULTS)
+
+
+debug_print_defaults()
