@@ -12,7 +12,7 @@ try:
     from pydantic_core import PydanticUndefined
 except ImportError:
     try:
-        from pydantic._internal._core import PydanticUndefined
+        from pydantic._internal._core import PydanticUndefined # type: ignore
     except ImportError:
         PydanticUndefined = None  # fallback, should not happen
 

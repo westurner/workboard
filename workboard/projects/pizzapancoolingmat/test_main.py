@@ -1,10 +1,10 @@
 """
 """
 
+import math
 import subprocess
 import sys
 import os
-
 import pytest
 
 from . import main
@@ -130,9 +130,6 @@ def test_geometric_mating_of_assembly():
     - laptop rests atop pan2 rim
     - pan bottom is at Z=0
     """
-    from workboard.projects.pizzapancoolingmat.pizzapancoolingmat import PizzaPanCoolingMatAssembly, PizzaPanComponent
-    from workboard.projects.pizzapancoolingmat.schemas import DEFAULTS
-    import math
     props = DEFAULTS["default0"]
     asm = PizzaPanCoolingMatAssembly(props).render()
     pan1 = asm.children[0]

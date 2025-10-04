@@ -6,11 +6,18 @@ This module defines parametric components for a passive laptop cooling mat:
 - MagneticLaptopRiserComponent: silicone magnetic laptop riser/feet
 - LaptopComponent: simplified 15.6" laptop
 - PizzaPanCoolingMatAssembly: assembly of the above
+
+TODO:
+- update the dimensions of the laptop
+- 
+- increase the details on the laptop
+- switch from absolute to relative measurement
+
 """
 import os
 from typing import Any, Dict
 
-from build123d import Part, Cylinder, Box, Location
+from build123d import Axis, Part, Cylinder, Box, Location
 from build123d.topology import Compound  #, Edge, Face, ShapeList, Solid, Sketch
 
 from workboard.projects.pizzapancoolingmat.schemas import DEFAULTS
@@ -44,7 +51,7 @@ class PizzaPanComponent:
         # Rim (optional)
         rim = Cylinder(diameter / 2, rim_height)
         rim = rim - Cylinder((diameter / 2) - 10, rim_height)
-        rim = rim.translate((0, 0, thickness))
+        rim = rim.translate((0, 0, thickness-1))
         pan = disk + rim
         # Ensure the bottom of the pan is at Z=0 (disk and rim both start at Z=0)
         # If the bounding box min.Z is not 0, translate pan down
@@ -107,6 +114,8 @@ class LaptopComponent:
         return Box(length, width, thickness)
 
 
+GAP_TOLERANCE = 0.0001
+
 class PizzaPanCoolingMatAssembly:
     """
     Assembly of 2 pizza pans, 4 risers, and 1 laptop.
@@ -131,48 +140,96 @@ class PizzaPanCoolingMatAssembly:
         """
         props = self.props
 
-        # --- Z height constants and offsets ---
         pan_thickness = props["pan"]["thickness"]
-        pan_rim_height = props["pan"]["rim_height"]
+        #pan_rim_height = props["pan"]["rim_height"]
         riser_height = props["riser"]["height"]
-        riser_z_offset = 15  # Distance from base to bottom of riser (could be a prop)
+        laptop_thickness = props["laptop"]["thickness"]
+
         # The top of the riser is at riser_z_offset + riser_height
         # The bottom of pan2 should be at the top of the risers
         # Render a riser to get its bounding box
-        riser_geom = MagneticLaptopRiserSquareComponent(props["riser"]).render()
-        riser_top_z = riser_z_offset + (riser_geom.bounding_box().max.Z - riser_geom.bounding_box().min.Z)
+        magnet_geom = MagneticLaptopRiserSquareComponent(props["riser"]).render()
+        
         # Render a pan to get its bounding box
         pan_geom = PizzaPanComponent(props["pan"]).render()
         pan1 = pan_geom
-        # Place risers so their bottom is at the top of pan1
-        pan1_top_z = pan1.bounding_box().max.Z
-        riser_geom = MagneticLaptopRiserSquareComponent(props["riser"]).render()
-        riser_height = props["riser"]["height"]
-        riser_z_offset = pan1_top_z  # Place riser bottom at pan1 top
-        # Render a pan to get its bounding box
-        pan_geom = PizzaPanComponent(props["pan"]).render()
-        riser_top_z = riser_z_offset + (riser_geom.bounding_box().max.Z - riser_geom.bounding_box().min.Z)
-        pan2_z = riser_top_z - pan_geom.bounding_box().min.Z
+        pan1.label = "Pan 1"
+
+
+        magnet_geom = MagneticLaptopRiserSquareComponent(props["riser"]).render()
+
+        risers = []
+        risers1_z = pan_thickness + GAP_TOLERANCE  # Distance from base to bottom of riser (could be a prop)
+        risers1_z = (risers1_z + riser_height / 2)
+
+        for i in range(2):
+            x = (-100)
+            y = (-80 if i % 2 == 0 else 80)
+            riser = magnet_geom.rotate(Axis.Z, 90)
+            riser = riser.translate((x, y, risers1_z))
+            riser.label = "Magnet (Layer 1)"
+            risers.append(riser)
+
+        risers1_top_z = risers[0].bounding_box().max.Z
+
+        pan2_z = risers1_top_z + GAP_TOLERANCE
         pan2 = pan_geom.translate((0, 0, pan2_z))
+        pan2.label = "Pan 2"
+        
+        pan2_top_z = pan2.bounding_box().max.Z
+        
+        #RANDOM_NUMBER = 10
+        RANDOM_NUMBER = riser_height / 2 - pan_thickness / 2
+        risers2_z = pan2_top_z + RANDOM_NUMBER
+
+        for i in [2,3]:
+            x = (-100)
+            y = (-80 if i % 2 == 0 else 80)
+            riser = magnet_geom.rotate(Axis.Z, 90)
+            riser = riser.translate((x, y, risers2_z))
+            riser.label = "Magnet (Layer 2)"
+            risers.append(riser)
+
+        risers2_top_z = risers[2].bounding_box().max.Z
+
+        stopper_magnets = [] 
+
+        x = 132
+        y = 0
+        magnet1_z = pan2_top_z + RANDOM_NUMBER
+        magnet1 = magnet_geom.rotate(Axis.Z, 90)
+        magnet1 = magnet1.translate((x, y, magnet1_z))
+        magnet1.label = "Stopper magnet 1"
+        stopper_magnets.append(magnet1)
+
+        x = 148
+
+        x = magnet1.bounding_box().max.X + (props["riser"]["height"] / 2)
+
+        y = 0
+        magnet2_z = pan2_top_z + (props["riser"]["width"]/ 2) - pan_thickness/2
+        magnet2 = magnet_geom.rotate(Axis.Z, 90).rotate(Axis.Y, 90)
+        magnet2 = magnet2.translate((x, y, magnet2_z))
+        magnet2.label = "Stopper magnet 2"
+        stopper_magnets.append(magnet2)
+
         # Place laptop so its bottom is at the top of pan2
         laptop_geom = LaptopComponent(props["laptop"]).render()
-        laptop_z = pan2.bounding_box().max.Z - laptop_geom.bounding_box().min.Z
-        risers = []
-        for i in range(4):
-            x = (-100 if i < 2 else 100)
-            y = (-80 if i % 2 == 0 else 80)
-            riser_geom = MagneticLaptopRiserSquareComponent(props["riser"]).render()
-            riser = riser_geom.translate((x, y, riser_z_offset + riser_height / 2))
-            risers.append(riser)
+        laptop_z = risers2_top_z + laptop_thickness / 2
         laptop = laptop_geom.translate((0, 0, laptop_z))
+        laptop = laptop.rotate(Axis.Z, 90)
+        laptop.label = "Laptop"
 
-        asm = Compound()
         parts = []
         parts.append(pan1) #, name="pan1")
         parts.append(pan2) #, name="pan2"
         for idx, riser in enumerate(risers):
             parts.append(riser) #, name=f"riser{idx+1}")
+        for idx, magnet in enumerate(stopper_magnets):
+            parts.append(magnet)
         parts.append(laptop) #, name="laptop")
+    
+        asm = Compound()
         asm.children = parts
         return asm
 
